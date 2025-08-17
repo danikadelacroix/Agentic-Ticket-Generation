@@ -1,1 +1,27 @@
+#!/usr/bin/env bash
+set -euo pipefail
+BASE="${1:-http://localhost:3000}"
 
+echo "→ Auth reset (self-serve path)"
+curl -sS -X POST "$BASE/webhook/whatsapp" \
+  -H 'Content-Type: application/x-www-form-urlencoded' \
+  --data-urlencode 'From=whatsapp:+911234567890' \
+  --data-urlencode 'Body=My password is not working, please reset' \
+  --data-urlencode 'NumMedia=0'
+echo -e "\n"
+
+echo "→ Order issue (auto-ticket path)"
+curl -sS -X POST "$BASE/webhook/whatsapp" \
+  -H 'Content-Type: application/x-www-form-urlencoded' \
+  --data-urlencode 'From=whatsapp:+911234567890' \
+  --data-urlencode 'Body=Order 84XA-12 not delivered yet' \
+  --data-urlencode 'NumMedia=0'
+echo -e "\n"
+
+echo "→ Force human handoff"
+curl -sS -X POST "$BASE/webhook/whatsapp" \
+  -H 'Content-Type: application/x-www-form-urlencoded' \
+  --data-urlencode 'From=whatsapp:+911234567890' \
+  --data-urlencode 'Body=agent' \
+  --data-urlencode 'NumMedia=0'
+echo
