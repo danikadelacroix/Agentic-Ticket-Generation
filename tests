@@ -1,1 +1,21 @@
+const test = require('node:test');
+const assert = require('node:assert/strict');
+const { policyDecision, PRI } = require('../policy');
 
+test('self-serve for auth_reset at sufficient confidence', () => {
+  const out = policyDecision({ intent: 'auth_reset', confidence: 0.8, customerTier: 'gold' });
+  assert.equal(out.branch, 'selfServe');
+  assert.equal(out.priority, PRI.P3);
+  assert.ok(out.slaMins > 0);
+});
+
+test('auto-ticket when confidence is high for non-self-serve intents', () => {
+  const out = policyDecision({ intent: 'order', confidence: 0.75, customerTier: 'standard' });
+  assert.equal(out.branch, 'autoTicket');
+  assert.equal(out.priority, PRI.P2);
+});
+
+test('human handoff at low confidence', () => {
+  const out = policyDecision({ intent: 'billing', confidence: 0.2, customerTier: 'silver' });
+  assert.equal(out.branch, 'human');
+});
